@@ -1,0 +1,69 @@
+#!/bin/bash
+
+gcd () {
+
+    if [ ! -z $1 ]
+    then
+        cd $1
+        ROOT_BRANCH=$(git branch -l | grep -E "master|main")
+
+        if [ ! -z $2 ]
+        then
+            BRANCH_EXISTS=$(git branch -l | grep $2)
+            echo "branch e:" $BRANCH_EXISTS
+
+            if [ ! -z $BRANCH_EXISTS ]
+            then
+                echo "git checkout" $2
+                git checkout $2
+                git pull origin $ROOT_BRANCH
+            else
+                echo "git wrecked: creating new branch $2"
+                git checkout -b $2
+            fi
+        fi
+
+        git pull origin $ROOT_BRANCH
+}
+
+gpush () {
+    git add .
+    git status
+    read -p "Feeling Lucky? (y/n): " confirm
+    if [ $confirm == 'y' ] && [ ! -z "$1" ]
+    then
+        CURRENT_BRANCH=(git rev-parse --abbrev-ref HEAD)
+        echo "On branch $CURRENT_BRANCH"
+        git commit -m "$1"
+
+        git push origin $CURRENT_BRANCH
+
+        # Need to hash out different environment implementations
+        #REPO_URL=$(git push origin $CURRENT_BRANCH 2>&1 | grep https:// | gawk '{print $2}')
+        #echo "BB URL: $REPO_URL"
+        #xdg-open $REPO_URL
+}
+
+# In the wild yes, in the org no...
+yq() {
+  docker run --rm -i -v "${PWD}":/workdir mikefarah/yq "$@"
+}
+
+dothis () {
+    #First check if there's an argument
+    if [ -z "$1" ]; then
+        echo "No command number passed"
+        exit 2
+        fi
+
+    #Check if number was in last 1000 commands
+    exists=$(fc -l -1000 | grep ^$1 -- 2>/dev/null)
+
+    #Execute the command or Error
+    if [ -n "$exists" ]; then
+        fc -s -- "$1"
+    else
+        echo "Command with number $1 was not found in recent history"
+    exit 2
+    fi
+}

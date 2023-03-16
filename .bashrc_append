@@ -1,0 +1,10 @@
+#Append to .bashrc
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
+if [ -f ~/.bashrc_functions ]; then
+    . ~/.bashrc_functions
+fi
+
+export DOTHIS_COMPLETION_COMMANDS_NUMBER=42
